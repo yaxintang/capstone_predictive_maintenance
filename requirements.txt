@@ -10,3 +10,7 @@ scikit-learn==1.2.2
 statsmodels==0.13.5
 pytest==7.3.1
 nbdime==4.0.2
+duckdb==1.2.0
+pyarrow==12.0.1
+openpyxl==3.1.2
+

@@ -3,7 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
-import duckdb
+#import duckdb
 from sklearn.model_selection import train_test_split
 import streamlit as st
 import st_function as f
@@ -17,8 +17,8 @@ st.set_page_config(
 
 f.navigation()
 
-with duckdb.connect("data/team_data.duckdb") as conn:
-    st.session_state.df_train = conn.execute("SELECT * FROM df_train").fetchdf()
+#with duckdb.connect("data/team_data.duckdb") as conn:
+#    st.session_state.df_train = conn.execute("SELECT * FROM df_train").fetchdf()
     
 #df.head()  
 

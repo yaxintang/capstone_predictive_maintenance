@@ -81,8 +81,9 @@ df_train
 ###### SUBHEADER
 
 st.write("")
-st.subheader("Histogram of Numerical Data")
+st.subheader("Distribution of Numerical Data")
 st.markdown("Text...")
+st.markdown("Observation outside inter quartile range (IQR) will not be removed as the are part of the valid data distribution.")
 
 #col_sort = "udi"
 col_grouping = ["machine_failure"]
@@ -108,7 +109,8 @@ for column in plot_list:
             opacity=0.7,
             barmode="overlay",
             labels=lab_dict,
-            title=f"Histogram of {lab_dict[column]}"
+            title=f"Histogram of {lab_dict[column]}",
+            marginal="box"
             )
         fig.update_layout(legend=dict(
         orientation="h",
@@ -123,15 +125,15 @@ for column in plot_list:
 
 st.write("")
 st.subheader("Box Plot of Selected Data")
-st.markdown("Observation outside inter quartile range (IQR) will not be removed as the are part of the valid data distribution.")
+st.markdown("Observations outside inter quartile range (IQR) will not be removed as the are part of the valid data distribution.")
 
 size = 400
 
-cols = [ 'air_temperature_k',
- 'process_temperature_k',
- 'rotational_speed_rpm',
- 'torque_nm',
- 'tool_wear_min',]
+cols = [ "air_temperature_k",
+"process_temperature_k",
+ "rotational_speed_rpm",
+ "torque_nm",
+ "tool_wear_min",]
 df_chart = df_train
 for col in cols:
     fig = px.box(

@@ -2,4 +2,4 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-st.session_state.df.info()
+st.dataframe(st.session_state.df)

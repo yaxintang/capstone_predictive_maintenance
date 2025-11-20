@@ -7,4 +7,4 @@ def navigation():
     
     st.sidebar.page_link("app.py", label='👋 Welcome')
     st.sidebar.page_link("pages/01_eda.py", label="📊 EDA")
-    st.sidebar.page_link("pages/02_pipeline.py", label="📜 Pipeline")
+    #st.sidebar.page_link("pages/02_pipeline.py", label="📜 Pipeline")

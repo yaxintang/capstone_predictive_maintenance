@@ -3,7 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
-#import duckdb
+import duckdb
 from sklearn.model_selection import train_test_split
 import streamlit as st
 import st_function as f
@@ -17,8 +17,8 @@ st.set_page_config(
 
 f.navigation()
 
-#with duckdb.connect("data/team_data.duckdb") as conn:
-#    st.session_state.df_train = conn.execute("SELECT * FROM df_train").fetchdf()
+with duckdb.connect("data/team_data.duckdb") as conn:
+    st.session_state.df_train = conn.execute("SELECT * FROM df_train").fetchdf()
     
 #df.head()  
 
@@ -95,7 +95,7 @@ plot_list = [
     "tool_wear_min",
     "machine_failure"
 ]
-size = 500
+size = 600
 df_chart = df_train#.sort_values(col_sort)
 
 for column in plot_list:
@@ -104,8 +104,8 @@ for column in plot_list:
             data_frame = df_chart,
             x = column,
             color = group,
-            width = size,
-            height = size,
+            #width = size,
+            #height = size,
             opacity=0.7,
             barmode="overlay",
             labels=lab_dict,
@@ -118,7 +118,7 @@ for column in plot_list:
         y=-0.20,
         ))
         #fig.show()
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, width = size)
 
 
 ###### SUBHEADER
@@ -127,7 +127,7 @@ st.write("")
 st.subheader("Box Plot of Selected Data")
 st.markdown("Observations outside inter quartile range (IQR) will not be removed as the are part of the valid data distribution.")
 
-size = 400
+#size = 400
 
 cols = [ "air_temperature_k",
 "process_temperature_k",
@@ -139,12 +139,12 @@ for col in cols:
     fig = px.box(
         df_chart, 
         y=col, 
-        width=size, 
-        height=size, 
+        #width=size, 
+        #height=size, 
         labels=lab_dict,
         )
     #fig.show()
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, width= size)
 
 
 ###### SUBHEADER
@@ -154,7 +154,7 @@ st.subheader("Scatter Plot of Selected Data")
 
 
 # individual scatter plots
-size = 400
+#size = 400
 scatter_color ="machine_failure"
 df_chart = df_train#[df_train["machine_failure"]==1]
 
@@ -176,8 +176,8 @@ for key, values in scatter_pairs.items():
         y = values[1],
         color = values[2],
         opacity = 0.7,
-        width=size,
-        height=size,
+        #width=size,
+        #height=size,
         labels=lab_dict,
         title=f"{lab_dict[values[0]]} vs {lab_dict[values[1]]}"
 
@@ -190,6 +190,28 @@ for key, values in scatter_pairs.items():
    ))
 
     #fig.show()
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, width= size)
+
+###### SUBHEADER
+
+#size=1000
+
+st.write("")
+st.subheader("Correlation matrix")
+st.markdown("- **Highly negatively correlated columns:** \n"
+            "- **Highly positively correlated columns:** \n"
+            
+            )
+
+df_train_corr = df_train.select_dtypes(include=np.number).corr()
 
 
+fig = px.imshow(
+    df_train_corr, 
+    text_auto=True, 
+    color_continuous_scale=[px.colors.qualitative.D3[0],"white",px.colors.qualitative.D3[1]], 
+    zmin=-1,  
+    zmax=1,
+    labels=lab_dict)
+
+st.plotly_chart(fig,width=size)

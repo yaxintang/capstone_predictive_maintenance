@@ -11,6 +11,5 @@ def transform(df, file_name=''):
     if len(df) != 0:
         df_clean = df
     
-    #print(f"Transformiert: {len(df_clean)} Zeilen für {file_name}")
-    print(f"Transformed: {len(df_clean)} rows for {file_name}")
+    print(f"Transformiert: {len(df_clean)} Zeilen für {file_name}")
     return df_clean

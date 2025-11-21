@@ -11,7 +11,7 @@ def clean_table_name(file_name):
     # Nur Buchstaben, Zahlen und Unterstrich erlauben
     return re.sub(r'\W+', '_', file_name)
 
-def load_to_duckdb(df, duckdb_path, table_name='default_table'):
+def load_to_duckdb(df, duckdb_path='data/team_data.duckdb', table_name='default_table'):
     """
     Speichert ein DataFrame in DuckDB.
     Tabelle wird überschrieben, Tabellennamen automatisch gesäubert.
@@ -30,6 +30,5 @@ def load_to_duckdb(df, duckdb_path, table_name='default_table'):
     conn.register('df_temp', df)
     conn.execute(f'CREATE TABLE "{table_name}" AS SELECT * FROM df_temp')
     
-    #print(f"Geladen in {duckdb_path} -> Tabelle: {table_name}")
-    print(f"Loaded into {duckdb_path} -> Table: {table_name}")
+    print(f"Geladen in {duckdb_path} -> Tabelle: {table_name}")
     conn.close()

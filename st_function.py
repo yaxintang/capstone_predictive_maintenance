@@ -91,3 +91,17 @@ def embed_plotly_in_iframe(fig: Union[go.Figure, dict], height: int = 550) -> st
     iframe_tag = f'<iframe src="{data_uri}" style="width:100%; height:{height}px; border:none; background-color: grey;"></iframe>'
     
     return iframe_tag
+
+def slide_chart_comment(df_chart, col_grouping, plot_list,lab_dict ):
+    markdown_content =  ""
+    for key, value in plot_list.items():
+        markdown_content = markdown_content+f"""
+        ## {lab_dict[value[0]]}
+        {embed_plotly_in_iframe(chart_hist_box(df_chart, value[0], col_grouping, lab_dict))}
+        {value[1]}
+        ---
+        """
+    markdown_content = markdown_content+f"""
+    ## End
+    """
+    return markdown_content

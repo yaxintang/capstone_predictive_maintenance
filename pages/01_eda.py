@@ -112,7 +112,6 @@ st.markdown("Observations outside inter quartile range (IQR) will not be removed
 
 
 # generate plots and text 
-col_grouping = "machine_failure"
 
 # 1. feature to plot 2. comment on plot
 plot_list = {
@@ -124,50 +123,23 @@ plot_list = {
     5:["machine_failure", "Dataset is imbalanced (~30:1)"]    
 }
 
+# grouping by
+col_grouping = "machine_failure"
 
 df_chart = df_train#.sort_values(col_sort)
 
+# charts in streamlit
 for key, value in plot_list.items():
     st.plotly_chart(f.chart_hist_box(df_chart, value[0], col_grouping, lab_dict), width=chart_width)
     
     st.markdown(f"**Note:** {value[1]}")
 
 # reveal slides
-markdown_content = f"""
-
-## {lab_dict[plot_list[1][0]]}
-
-{f.embed_plotly_in_iframe(f.chart_hist_box(df_chart, plot_list[1][0], col_grouping, lab_dict))}
-{plot_list[1][1]}
----
-## {lab_dict[plot_list[2][0]]}
-
-{f.embed_plotly_in_iframe(f.chart_hist_box(df_chart, plot_list[2][0], col_grouping, lab_dict))}
-{plot_list[2][1]}
----
-## {lab_dict[plot_list[3][0]]}
-
-{f.embed_plotly_in_iframe(f.chart_hist_box(df_chart, plot_list[3][0], col_grouping, lab_dict))}
-{plot_list[3][1]}
----
-## {lab_dict[plot_list[4][0]]}
-
-{f.embed_plotly_in_iframe(f.chart_hist_box(df_chart, plot_list[4][0], col_grouping, lab_dict))}
-{plot_list[4][1]}
----
-## {lab_dict[plot_list[5][0]]}
-
-{f.embed_plotly_in_iframe(f.chart_hist_box(df_chart, plot_list[5][0], col_grouping, lab_dict))}
-{plot_list[5][1]}
-
-"""
-# Präsentation in Streamlit anzeigen
+markdown_content = f.slide_chart_comment(df_chart, col_grouping, plot_list,lab_dict)
 rs.slides(
     markdown_content, 
     theme="black" 
 )
-
-
 ###### SUBHEADER
 
 st.write("")

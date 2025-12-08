@@ -1,188 +1,327 @@
-[![Shipping files](https://github.com/neuefische/ds-ml-project-template/actions/workflows/workflow-02.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/neuefische/ds-ml-project-template/actions/workflows/workflow-02.yml)
+# Digital Twin-Driven Predictive Maintenance Model for Industrial Machines
 
-# Template Repo for ML Project
-
-This template repo will give you a good starting point for your second project. Besides the files used for creating a virtual environment, you will find a simple example of how to build a simple model in a python script. This is maybe the simplest way to do it. We train a simple model in the jupyter notebook, where we select only some features and do minimal cleaning. The output is then stored in simple python scripts.
-
-The data used for this is: [coffee quality dataset](https://github.com/jldbc/coffee-quality-database).
+This project develops a Digital Twin–driven predictive maintenance model that estimates machine failure risk based on operational conditions such as temperature, torque, rotational speed, and tool wear.  
+The model enables maintenance engineers and managers to simulate scenarios, understand feature influence using SHAP explanations, and optimize maintenance decisions to reduce production risk.
 
 ---
 
-## Set up a Kanban board on github
+## Value Proposition
 
-Go to ML-Project Template.
+A Digital Twin–based Predictive Maintenance System that can:
 
-1. Click on "Use this Template" (Blue button)
-![alt text](./images/step_1a_new.png)
+- Simulate machine operating conditions (temperature, speed, torque, tool wear)
+- Simulate machine failure to understand the boundary between normal and faulty operation
+- Provide interpretable SHAP explanations to identify which features drive the failure risk
+- Allow managers to test “What-if” scenarios  
+  (e.g., *What if we increase the load? What if the temperature rises by 20°C?*)
+- Reduce production risks and support smarter maintenance scheduling
 
-1. Create new repository with relevant name, the owner should be your own account. 
-![alt text](./images/step_2_new.png)
+---
+##  Hypotheses
 
-1. In your newly create repo, navigate to "Projects", and then click on "Link a project" (blue button). Normally you don't have created a project yet, so you can click the arrow navigation to create project on your profile. This project can be added at the end to your repository.
-![alt text](./images/add_project_new.png)
+The following hypotheses guided our project:
 
+1. Higher `tool_wear_min` values increase the probability of machine failure.
+2. Large `temperature_difference` between process and ambient air correlates with higher failure risk.
+3. Ensemble models like Random Forest outperform a single Decision Tree in predictive accuracy due to reduced overfitting.
+4. A small, interpretable Decision Tree (2 features, max depth=2) can provide human-understandable rules for maintenance decisions.
+5. Simulating different operational scenarios (e.g., increased load or speed) will meaningfully change the predicted risk scores.
 
-4.  You will be guided to your profiles projects and it will be shown a create project window. Choose "board" view and **not** "table" view.
- ![alt text](./images/choose_board.png)
-5. Now change the name of your board, to match that of your chosen ML project. Then click "Create project" blue button. Great you create Kanban Board
-![alt text](./images/create_project_new.png)
+---
 
-6. Next, assign rights to all your team members by clicking on the 3 dots on the top right of the board, and then go to "Settings".
-![alt text](./images/kanban_settings.png)
+##  Dataset Overview
 
+The dataset contains machine condition measurements, operational metadata, and failure indicators.
 
-7. Next, click on "Manage Access". Add your team mates by Searching for their github handle in the search window.Change their Role from ‘Write’ to ‘Admin’. Click on the blue button “Invite” to add them. Repeat for all team members.
-![alt text](./images/team_access_new.png
-)
+### **Original Features**
 
-8. Next,go back to the kanban board and at the bottom  add action items with the relevant name e.g. “load data”, "get statistics", etc.
-![alt text](./images/load_data_item.png
-)
+- `udi` – Unique record ID  
+- `product_id` – Machine/product identifier  
+- `type` – Machine type (H, L, M)  
+- `air_temperature_k` – Air temperature in Kelvin  
+- `process_temperature_k` – Process temperature in Kelvin  
+- `rotational_speed_rpm` – Spindle/shaft rotational speed  
+- `torque_nm` – Applied torque in Newton-meters  
+- `tool_wear_min` – Tool wear in minutes  
 
+### **Original Failure Signals (Binary Labels)**  
+(Used to engineer the final target)
 
-9. Convert added item to issue by clicking on the 3 dots on the particular added item.
-![alt text](./images/convert_to_issue.png
-)
+- `twf` – Tool Wear Failure  
+- `hdf` – Heat Dissipation Failure  
+- `pwf` – Power Failure  
+- `osf` – Overstrain Failure  
+- `rnf` – Random Failure  
 
-10. Then select the repo you created  for the issue to be added. (Select the project repo example “my-project-name”)
-![alt text](./images/select_repo.png
-)
+### **Engineered Features**
 
-11. When in project repo, Go to issues, then go to milestones. 
-![alt text](./images/to_milestones.png
-)
+- `temperature_difference` – Δ between process & air temperature  
+- `maschine_power` – Torque × rotational speed  
+- `temp_ratio` – Ratio of air/process temperature  
+- `power_ratio` – Ratio of machine power to designed performance  
 
-12. Click on ”New milestone”.
+### **Target**
 
-13. Give the milestone a due date and description as per the example provided by the coaches. Add description of: 
+- `machine_failure` – Binary target: 1 = failure, 0 = normal
 
-    A) What needs to be completed to be done with the milestone
+---
+##  Data Pipeline
 
-    B) The definition of done: what will your result look like when you have completed the milestone? (check the provided format)
-![alt text](./images/new_milestone.png)
+The data pipeline ensures reproducible and efficient data handling for all machine learning models:
 
-14. Now navigate to "issues".
-
-15. Assign issues to milestones 
-![alt text](./images/milestone_to_issue_new.png)
-
-16. Give it assignees (people who will work on the task). 
-![alt text](./images/milestone_to_someone.png)
-
-### Optional: Add workflows
-
-Workflows can help you keep your kanban board automatically on track. 
-
-Select the project created in the steps above.  
-
-Click on the 3 dots to the far right of the board (...)
-
-Select workflow as the first option. 
-
-Activate the ones you feel necessary to your project
-
-Go back to your project repository (fraud detection))
-
-## Set up your Environment
+1. **Raw Data Ingestion:**  
+   All raw sensor and machine operation data are stored in `data/raw/` (CSV, etc.).
 
 
+2. **Preprocessing & Feature Engineering:**  
+   - Cleaning missing values  
+   - Creating engineered features such as `temperature_difference`, `maschine_power`, `power_ratio`  
+   - Encoding categorical features using OneHotEncoder  
+   - Scaling numeric features
 
-### **`macOS`** type the following commands : 
+3. **Processed Data Storage:**  
+   Final cleaned and processed datasets are stored in `data/processed/`. (leave as future work)
 
-- For installing the virtual environment you can either use the [Makefile](Makefile) and run `make setup` or install it manually with the following commands:
+4. **Centralized Database (DuckDB):**  
+   All  data are written to `data/team_data.duckdb`.  
+   Machine learning models retrieve data directly from this database for training and evaluation.
 
-     ```BASH
-    make setup
-    ```
-    After that active your environment by following commands:
-    ```BASH
-    source .venv/bin/activate
-    ```
-Or ....
-- Install the virtual environment and the required packages by following commands:
+> This setup allows reproducibility, smooth experimentation, and easy updates for multiple models.
 
-    ```BASH
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
-    
-### **`WindowsOS`** type the following commands :
+---
 
-- Install the virtual environment and the required packages by following commands.
+##  Project Structure
 
-   For `PowerShell` CLI :
 
-    ```PowerShell
-    pyenv local 3.11.3
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+---
 
-    For `Git-bash` CLI :
+##  Methods Used
+
+- Exploratory Data Analysis (EDA)  
+- Missing value analysis  
+- Feature Engineering  
+- Categorical encoding using OneHotEncoder  
+- Scaling numeric features  
+- Train-test split  
+- Machine learning model: Random forest Classifier, XGBoostClassifier, Neural network and Decision Tree als Baseline  
+- Model explainability: SHAP  
+- Partial Dependence Plots (PDP)  
+- Evaluation using Precision, Recall, **F1**
+
+---
+
+## Model Description
+
+Four different machine learning models were developed and evaluated to predict machine failure risk.  
+The goal was to compare baseline, tree-based, and neural network approaches to identify the best-performing algorithm for predictive maintenance.
+We intentionally started with a **human-interpretable baseline model** before moving to more complex algorithms.  
+This ensures transparent decision-making in critical industrial applications.
+
+### **1. Baseline Model: Interpretable Decision Tree (Depth = 2, 2 Features)**
+
+To establish a transparent benchmark, we trained a very small **Decision Tree**:
+
+- **max_depth = 2**  
+- **only 2 features** were used (the most influential according to initial analysis):
+  - `torque_nm`
+  - `rotational_speed_rpm`
+
+ **Purpose:**  
+Provide a *human-level interpretable model* that maintenance engineers can understand without ML background.
+
+🛠 Why this approach:
+- Each decision path corresponds to a simple rule  
+  → e.g., *“If torque > X and speed > Y, risk increases.”*  
+- Allows domain experts to validate whether the splits make physical sense  
+- Serves as a logic-based baseline to compare more complex models  
+
+Although accuracy was limited, this model provides:
+- maximum interpretability  
+- insights into fundamental feature thresholds  
+- a sanity check before moving on to advanced models
+
+![alt text](image.png)
+
+---
+
+### **2. Random Forest (Final Model)**
+Random Forest was the **best-performing model** and became the final choice.
+
+Reasons for superior performance:
+- strong generalization through bagging  
+- low variance compared to a single tree  
+- robustness to noisy sensor data  
+- excellent performance in F1-score  
+
+Random Forest was the most stable and reliable across all validation folds.
+
+---
+
+### **3. XGBoost**
+XGBoost offered strong performance and captured non-linear relationships well.  
+However:
+
+- required more tuning  
+- slightly less stable than RandomForest on imbalanced data  
+- more sensitive to hyperparameters  
+
+It performed close to RandomForest but did not surpass it consistently.
+
+---
+
+### **4. Neural Network (MLP)**
+A Multi-Layer Perceptron (MLP) was trained as a deep learning baseline.
+
+Key characteristics:
+- Able to learn non-linear relationships  
+- Requires scaling + careful tuning  
+- Sensitive to noise and imbalanced data
+- required more data to generalize    
   
-    ```BASH
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/Scripts/activate
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+The NN performed reasonably well but did not outperform the tree-based models,in precision-recall metrics.
 
-    **`Note:`**
-    If you encounter an error when trying to run `pip install --upgrade pip`, try using the following command:
-    ```Bash
-    python.exe -m pip install --upgrade pip
-    ```
-
-
-   
-## Usage
-
-In order to train the model and store test data in the data folder and the model in models run:
-
-**`Note`**: Make sure your environment is activated.
-
-```bash
-python example_files/train.py  
-```
-
-In order to test that predict works on a test set you created run:
-
-```bash
-python example_files/predict.py models/linear_regression_model.sav data/X_test.csv data/y_test.csv
-```
-
-## Limitations
-
-Development libraries are part of the production environment, normally these would be separate as the production code should be as slim as possible.
-
+It served as a useful comparison but was not selected as the final model.
 
 ---
 
-## Handling Merge Conflicts in Jupyter Notebooks
+### **Final Choice**
+The **Random Forest** was selected as the final predictive maintenance model due to:
 
-When working in teams, `.ipynb` files can cause messy merge conflicts because they’re JSON-based.  
-We use **nbdime** to make this easy.
+- best f1_score  
+- high robustness  
+- interpretable feature importance  
+- strong performance without overfitting  
 
-### Setup (run once)
-```bash
-nbdime config-git --enable
-```
+The simple interpretable Decision Tree remains a valuable reference model to ensure transparency and trust. 
+  
 
-### When a conflict happens
-```bash
-nbdime mergetool
-```
+The model predicts a **risk score** representing the probability of machine failure under given operating conditions.
 
-A web interface will open showing both notebook versions side by side.
-Choose what to keep, save and close tool, then:
-```bash
-git add your_notebook.ipynb
-git commit -m "Resolved notebook conflict"
-```
-That’s it — clean merges for notebooks!
+---
+
+## Evaluation Metrics
+
+The target of the model is to correctly classify whether there will be a failure, hence it is the target (failure = 1).
+We want the model to:
+- maximize identification of failures by minimizing "false negatives" (recall)
+- maximize tool run-time by minimizing "false positives" (precision)
+We will therefore go with the **F1 score** as it provides a balance between recall and precision.
+
+
+Key metrics used:
+
+- **AUC-PR** – recommended for imbalanced classification   
+- **F1-Score**  
+- **SHAP Summary Plots**  
+- **PDP Plots** for feature influence
+
+-> **Precision (Positive Predictive Value)**
+
+$$
+\text{Precision} = \frac{TP}{TP + FP}
+$$
+
+Where:  
+- $TP$ = True Positives  
+- $FP$ = False Positives
+
+
+
+-> **Recall (Sensitivity / True Positive Rate)**
+
+$$
+\text{Recall} = \frac{TP}{TP + FN}
+$$
+
+Where:  
+- $FN$ = False Negatives
+
+
+-> **F1-Score**
+
+$$
+F1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+$$
+
+---
+
+## 📊 Results / Visualizations
+
+The following visualizations summarize the performance and explainability of the predictive maintenance models:
+
+---
+
+### **1️⃣ Model Performance**
+
+**Model Comparison Table / Barplot**  
+- Compares AUC-PR, Precision, Recall, and F1-score for all four models:  
+  - Decision Tree (baseline)  
+  - Random Forest (final)  
+  - XGBoost  
+  - Neural Network  
+
+---
+
+### **2️⃣ Feature Importance & Explainability**
+
+**Random Forest Feature Importance (Barplot)**  
+- Shows which features most influence predictions.  
+- Example features: `torque_nm`, `rotational_speed_rpm`, `tool_wear_min`, `temperature_difference`.
+![alt text](image-1.png)
+
+**SHAP Summary Plot**  
+- Displays global feature influence on model predictions.  
+- Color indicates whether a high feature value increases or decreases failure risk.
+![alt text](image-2.png)
+
+**Partial Dependence Plots (PDPs)**  
+- Visualize the effect of top features on predicted failure probability.  
+- Useful for “What-if” analysis: e.g., *how does increasing torque affect risk?*
+
+![alt text](image-4.png)
+
+**SHAP Force Plot**  
+- Shows local explanations for individual machine observations.  
+- Can help engineers understand why a machine is predicted to fail.
+![alt text](image-3.png)
+
+---
+
+### **3️⃣ Baseline Model Visualizations**
+
+**Decision Tree (Depth=2, 2 Features)**  
+- Human-interpretable rules for maintenance decisions.  
+- Example:  
+  - *If `torque_nm > 150` and `rotational_speed_rpm > 5000` → higher failure risk.*  
+- Demonstrates transparency and explains basic decision logic.
+
+![alt text](image-5.png)
+
+---
+
+### **Notes**
+
+- Only key plots are included in the README for clarity.  
+- Detailed plots (all SHAP force plots, PDPs for all features) are included in the **notebooks** or **technical documentation**.  
+- Visualizations support **interpretability, scenario simulation, and model validation** for industrial maintenance decisions.
+
+---
+## Interactive Dashboard
+
+**Streamlit dashboard implemented**:
+
+- Modify input features (torque, speed, temperature)  
+- Visualize predicted failure risk scores in real-time  
+- Helps engineers and managers make informed maintenance decisions
+
+---
+
+## Future Work
+
+- Integrate real-time sensor timestamps for temporal modeling  
+- Explore LSTM / Temporal CNN models for sequential prediction  
+- Expand digital twin simulation with physics-based models
+
+---
+
+

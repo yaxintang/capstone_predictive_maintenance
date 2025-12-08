@@ -6,11 +6,8 @@ import plotly.express as px
 #import duckdb
 from sklearn.model_selection import train_test_split
 #import streamlit as st
-from typing import Union
-import base64 # Neu: Für die Kodierung des HTML-Inhalts
-
-def import_stuff():
-    import plotly.express as px
+#from typing import Union
+#import base64 # Neu: Für die Kodierung des HTML-Inhalts
 
 
 def navigation():
@@ -22,7 +19,7 @@ def navigation():
     st.sidebar.page_link("app.py", label='👋 Welcome')
     st.sidebar.page_link("pages/proj_management.py", label="📅 Project Management")
     st.sidebar.page_link("pages/01_eda.py", label="📊 EDA")
-    #st.sidebar.page_link("pages/02_pipeline.py", label="📜 Pipeline")
+    st.sidebar.page_link("pages/predict.py", label="💡 Digital Twin")
 
 def chart_hist_box(data_frame, column, group, lab_dict):
     fig = px.histogram(
@@ -32,7 +29,7 @@ def chart_hist_box(data_frame, column, group, lab_dict):
         opacity=0.7,
         barmode="overlay",
         labels=lab_dict,
-        #title=f"Histogram of {lab_dict[column]}",
+        title=f"Histogram of {lab_dict[column]}",
         marginal="box",
         
         )
@@ -74,34 +71,37 @@ def chart_corr(data_frame,features_included,lab_dict ):
     )
     return fig
 
-def embed_plotly_in_iframe(fig: Union[go.Figure, dict], height: int = 550) -> str:
-   
-    chart_html_full = fig.to_html(
-        include_plotlyjs='cdn', 
-        full_html=True,
-        div_id='plotly_reveal_embed'
-    )
-    
-   
-    html_bytes = chart_html_full.encode('utf-8')
-    encoded = base64.b64encode(html_bytes).decode('utf-8')
-    data_uri = f"data:text/html;base64,{encoded}"
-    
-   
-    iframe_tag = f'<iframe src="{data_uri}" style="width:100%; height:{height}px; border:none; background-color: grey;"></iframe>'
-    
-    return iframe_tag
 
-def slide_chart_comment(df_chart, col_grouping, plot_list,lab_dict ):
-    markdown_content =  ""
-    for key, value in plot_list.items():
-        markdown_content = markdown_content+f"""
-        ## {lab_dict[value[0]]}
-        {embed_plotly_in_iframe(chart_hist_box(df_chart, value[0], col_grouping, lab_dict))}
-        {value[1]}
-        ---
-        """
-    markdown_content = markdown_content+f"""
-    ## End
-    """
-    return markdown_content
+## function to wrap an iFrame around plotly chart for a streamlit reveal slide
+#def embed_plotly_in_iframe(fig: Union[go.Figure, dict], height: int = 550) -> str:
+#   
+#    chart_html_full = fig.to_html(
+#        include_plotlyjs='cdn', 
+#        full_html=True,
+#        div_id='plotly_reveal_embed'
+#    )
+#    
+#   
+#    html_bytes = chart_html_full.encode('utf-8')
+#    encoded = base64.b64encode(html_bytes).decode('utf-8')
+#    data_uri = f"data:text/html;base64,{encoded}"
+#    
+#   
+#    iframe_tag = f'<iframe src="{data_uri}" style="width:100%; height:{height}px; border:none; background-color: grey;"></iframe>'
+#    
+#    return iframe_tag
+
+## create in a streamlit reveal slide with predefined content
+#def slide_chart_comment(df_chart, col_grouping, plot_list,lab_dict ):
+#    markdown_content =  ""
+#    for key, value in plot_list.items():
+#        markdown_content = markdown_content+f"""
+#        ## {lab_dict[value[0]]}
+#        {embed_plotly_in_iframe(chart_hist_box(df_chart, value[0], col_grouping, lab_dict))}
+#        {value[1]}
+#        ---
+#        """
+#    markdown_content = markdown_content+f"""
+#    ## End
+#    """
+#    return markdown_content

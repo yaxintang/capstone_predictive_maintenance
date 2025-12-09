@@ -1,6 +1,6 @@
 import pandas as pd
 import duckdb
-import st_function as f
+import streamlit_pages.st_function as f
 import plotly.express as px
 import streamlit as st
 

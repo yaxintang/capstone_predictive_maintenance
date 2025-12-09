@@ -5,13 +5,13 @@ import plotly.express as px
 import plotly.io as pio
 import duckdb
 from sklearn.model_selection import train_test_split
-import streamlit as st
+import streamlit_pages.streamlit as st
 import math
 from pandas import set_option
 
 #import reveal_slides as rs
 
-import streamlit_pages.st_function as f
+import st_function as f
 
 #repeat for every page to alter the default
 st.set_page_config(

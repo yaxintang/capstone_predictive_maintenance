@@ -5,13 +5,12 @@ import plotly.io as pio
 import plotly.express as px
 #import duckdb
 from sklearn.model_selection import train_test_split
-#import streamlit as st
+import streamlit as st
 #from typing import Union
 #import base64 # Neu: Für die Kodierung des HTML-Inhalts
 
 
 def navigation():
-    import streamlit as st
     """
     Function to customize navigation sidebar panel
     """

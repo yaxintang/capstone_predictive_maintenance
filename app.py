@@ -1,6 +1,6 @@
 import pandas as pd
 import duckdb
-import streamlit_pages.st_function as f
+import st_function as f
 import plotly.express as px
 import streamlit as st
 
@@ -13,6 +13,7 @@ st.set_page_config(
 )
 
 f.navigation()
+
 
 # Save variables in the session state
 #st.session_state.df = pd.read_csv("data/ai4i2020.csv")

@@ -5,20 +5,21 @@ import plotly.io as pio
 import plotly.express as px
 #import duckdb
 from sklearn.model_selection import train_test_split
-import streamlit as st
+#import streamlit as st
 #from typing import Union
 #import base64 # Neu: Für die Kodierung des HTML-Inhalts
 
 
 def navigation():
+    import streamlit as st
     """
     Function to customize navigation sidebar panel
     """
     
     st.sidebar.page_link("app.py", label='👋 Welcome')
-    st.sidebar.page_link("pages/proj_management.py", label="📅 Project Management")
-    st.sidebar.page_link("pages/eda.py", label="📊 EDA")
-    st.sidebar.page_link("pages/predict.py", label="💡 Digital Twin")
+    st.sidebar.page_link("streamlit_pages/proj_management.py", label="📅 Project Management")
+    st.sidebar.page_link("streamlit_pages/eda.py", label="📊 EDA")
+    st.sidebar.page_link("streamlit_pages/predict.py", label="💡 Digital Twin")
 
 def chart_hist_box(data_frame, column, group, lab_dict):
     fig = px.histogram(

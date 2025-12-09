@@ -1,5 +1,5 @@
 import streamlit as st
-import st_function as f
+import streamlit_pages.st_function as f
 import streamlit.components.v1 as components
 
 

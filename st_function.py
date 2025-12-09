@@ -15,7 +15,7 @@ def navigation():
     Function to customize navigation sidebar panel
     """
     
-    st.sidebar.page_link("app.py", label='👋 Welcome')
+    #st.sidebar.page_link("st_app.py", label='👋 Welcome')
     #st.sidebar.page_link("streamlit_pages/proj_management.py", label="📅 Project Management")
     #st.sidebar.page_link("eda.py", label="📊 EDA")
     #st.sidebar.page_link("predict.py", label="💡 Digital Twin")

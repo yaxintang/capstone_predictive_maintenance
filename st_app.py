@@ -1,7 +1,4 @@
-import pandas as pd
-import duckdb
 import st_function as f
-import plotly.express as px
 import streamlit as st
 
 
@@ -13,30 +10,6 @@ st.set_page_config(
 )
 
 f.navigation()
-
-
-# Save variables in the session state
-#st.session_state.df = pd.read_csv("data/ai4i2020.csv")
-with duckdb.connect("data/team_data.duckdb") as conn:
-    st.session_state.df_train = conn.execute("SELECT * FROM df_train").fetchdf()
-df_train = st.session_state.df_train
-
-lab_dict = {
-    "udi":"UDI",
-    "product_id":"Product ID",
-    "type":"Type",
-    "air_temperature_k":"Air temperature [K]",
-    'process_temperature_k':'Process temperature [K]',
-    'rotational_speed_rpm':'Rotational speed [RPM]',
-    'torque_nm':'Torque [Nm]',
-    'tool_wear_min':'Tool wear [min]',
-    "machine_failure":"Machine failure",
-    "twf":"TWF",
-    "hdf":"HDF",
-    "pwf":"PWF",
-    "osf":"OSF",
-    "rnf":"RNF"
-    }
 
 
 ################## CONTENT START
@@ -106,4 +79,3 @@ st.markdown('$$ F1 Score = 2 * {Precision * Recall \over Precision + Recall} $$'
 st.write("")
 st.subheader("What are we going to do?")
 st.markdown('- EDA Visualizations \n - Pipeline \n - Prediction: Is the machine need maintenance?')
-

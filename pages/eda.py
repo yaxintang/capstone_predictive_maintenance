@@ -1,19 +1,12 @@
-import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 import duckdb
-from sklearn.model_selection import train_test_split
-import streamlit_pages.streamlit as st
+import streamlit as st
 import math
-from pandas import set_option
-
-#import reveal_slides as rs
-
 import st_function as f
 
-#repeat for every page to alter the default
+# Set configuration and sidebar navigation
 st.set_page_config(
     page_title = "Predictive Maintenance - EDA",
     page_icon=":gear:",
@@ -135,18 +128,10 @@ for key, value in plot_list.items():
     
     st.markdown(f"**Note:** {value[1]}")
 
-# reveal slides
-#markdown_content = f.slide_chart_comment(df_chart, col_grouping, plot_list,lab_dict)
-#rs.slides(
-#    markdown_content, 
-#    theme="black" 
-#)
-
 ###### SUBHEADER
 
 st.write("")
 st.subheader("Scatter Plot of Selected Data")
-
 
 # generate plots and text 
 df_chart = df_train#[df_train["machine_failure"]==1]
@@ -163,7 +148,6 @@ for key, value in scatter_pairs.items():
     st.markdown(f"**Note:** {value[3]}")
     st.markdown("")
 
-
 ###### SUBHEADER
 
 st.write("")
@@ -175,6 +159,6 @@ st.markdown("- **Highly negatively correlated columns:** \n" \
             )
 features_included = ["air_temperature_k","process_temperature_k","rotational_speed_rpm","torque_nm","tool_wear_min"]
 
-df_chart = df_train#[df_train["machine_failure"]==1]
+df_chart = df_train
+# plot chart
 st.plotly_chart(f.chart_corr(df_chart, features_included,lab_dict),width=chart_width)
-

@@ -1,9 +1,17 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import streamlit_pages.st_function as f
+import st_function as f
+
+# Set configuration and sidebar navigation
+st.set_page_config(
+    page_title = "Predictive Maintenance - Pipeline",
+    page_icon=":gear:",
+    layout="wide"
+)
 
 f.navigation()
 
-# Set Title
+################## CONTENT START
+
+############ TITLE
+
 st.title("Pipeline")

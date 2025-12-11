@@ -1,5 +1,5 @@
 import streamlit as st
-import streamlit_pages.st_function as f
+import st_function as f
 import streamlit.components.v1 as components
 
 
@@ -27,7 +27,7 @@ st.markdown(
             
 """
             )
-
+# get project management overview from notion.ai
 st.components.v1.iframe("https://second-postage-a2a.notion.site/ebd/2ae62696334780eb92a8e8dd1068d1e9?v=2ae62696334780ea8ce9000c0169f273", 
                         width=1400, 
                         height=1000, 

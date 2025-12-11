@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
+
 import shap
 import streamlit as st
 
@@ -100,7 +102,7 @@ def chart_corr(data_frame,features_included,lab_dict ):
     )
     return fig
 
-def chart_shap(model,top ,txt,shap_dict, X_test):
+def chart_shap(model,top ,shap_dict, X_test, y_pred):
     """
     Generate a shap chart using plotly
 
@@ -127,53 +129,51 @@ def chart_shap(model,top ,txt,shap_dict, X_test):
         Xte_trans = Xte_trans.toarray()
     Xte_trans = pd.DataFrame(Xte_trans, columns=feat_names, index=X_test.index)
 
-    # get shap values for class 1
+    # get shap values
     explainer = shap.TreeExplainer(rf_model)
-    shap_values = explainer(Xte_trans)
-    sv_class1 = shap_values.values[0, :, 1]
-    data_frame = pd.DataFrame({"feature": feat_names, "shap": sv_class1}).sort_values("shap", ascending=False)
+    shap_values = explainer(Xte_trans).values[0, :, y_pred]*100
+    base_value = explainer.expected_value[y_pred]*100
+    if y_pred ==1:
+        shap_values=shap_values*-1
+        base_value=base_value*-1
+    data_frame = pd.DataFrame({"feature": feat_names, "shap": shap_values}).sort_values("shap", ascending=False)
 
     # add additional columns for charting
-    data_frame['Group'] = np.where(data_frame['shap'] < 0, txt["reduce"] ,txt["increase"]  )
+    data_frame['measure'] = "relative"
     data_frame["shap_abs"] = np.abs(data_frame["shap"])
     data_frame['show'] = np.where(data_frame["shap_abs"] > data_frame.sort_values("shap_abs", ascending=False)["shap_abs"].iloc[top], 1, 0 )
+
+    # columns order: [feature, shap, measure, shap_abs, show]
+    # add base value
+    data_frame.loc[-1] = ["base", base_value, "relative", 0, 1]
+    data_frame.index = data_frame.index + 1  # shifting index
+    data_frame.sort_index(inplace=True) 
     
-    row_sum=len(data_frame)
-    data_frame.loc[row_sum]=data_frame.sum()
-    data_frame["feature"].loc[row_sum]="sum"
-    data_frame["Group"].loc[row_sum]=txt["sum"]
-    data_frame["show"].loc[row_sum]=1
-    
+    # add total value
+    data_frame.loc[len(data_frame)] = ["total", 0, "total", 0, 1]
+
+    # add names
     data_frame["long_name"]=data_frame["feature"].replace(shap_dict)
-    data_frame = data_frame[data_frame["show"]==1][["long_name", "shap", "show", "Group"]]
+    data_frame = data_frame[data_frame["show"]==1]#[["long_name", "shap", "show", "Group"]]
     
-    fig = px.bar(
-        data_frame,
-        color_discrete_map={txt["increase"]: 'red',  txt["reduce"]: 'green',txt["sum"]: "blue"},
-        color='Group',
-        orientation='h',
-        x="shap",
-        y="long_name",
-    )
+    fig=go.Figure(go.Waterfall(    
+        measure=data_frame["measure"],
+        y=data_frame["long_name"],
+        x=data_frame["shap"],
+        orientation = "h",
+        
+    ))
     fig.update_layout(
-        legend=dict(
-        orientation="h",
-        yanchor="top",
-        y=-0.30,             
-    ),
-    #xaxis_tickfont_size= 25,
-    #xaxis_title_font_size =25,
-    #yaxis_tickfont_size= 25,
-    #yaxis_title_font_size =25,
-    #legend_font_size = 25,
+        xaxis=dict(range=[-150, 150]),
+        height =600,
+        xaxis_tickfont_size= 15,
+        yaxis_tickfont_size= 15,
+        xaxis_title= "Probability [%]",
+        yaxis_title= "Features"
 
-    #height =500,
 
-    xaxis=dict(range=[-0.75, 0.75]),
-     #   showlegend=False,
-        xaxis_title=f"Top {top} Influential Features",
-        yaxis_title="SHAP Value"
     )
+    fig.add_vline(x=0, line_dash="dash", line_color="grey")
     return fig
 
 def chart_feature_importance(model, dict_labels):
@@ -203,11 +203,5 @@ def chart_feature_importance(model, dict_labels):
         xaxis_title="Importance [%]",
         yaxis_title="Feature" ,
         showlegend = False,
-
-        #xaxis_tickfont_size= 25,
-        #xaxis_title_font_size =25,
-        #yaxis_tickfont_size= 25,
-        #yaxis_title_font_size =25
-
         )
     return fig

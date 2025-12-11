@@ -36,7 +36,7 @@ model_name="random_forrest_optimized"
 model = pickle.load(open(f"models/{model_name}.sav", 'rb'))
 
 # define names in charts
-txt = {"reduce":'reducing probability of failing',"increase": 'increasing probability of failing', "sum": "sum of SHAPs"}
+
 shap_dict = {
 "cat__type_H": "Product type (H)",
 "cat__type_L": "Product type (L)",
@@ -48,7 +48,8 @@ shap_dict = {
 "num__torque_nm" : "Torque",
 "num__tool_wear_min" : "Tool wear",
 "num__power" : "Power",
-"sum" : txt["sum"]
+"base" : "SHAP Base Value",
+"total" : "Model Prediction"
 }
 
 
@@ -94,16 +95,30 @@ with col1:
 
         ###### SUB
 
+
+
+    def change_vals():
+        if st.session_state.st_rotational_speed_rpm==2500 and st.session_state.st_torque_nm==15:
+            st.session_state.st_torque_nm=60
+            st.session_state.st_rotational_speed_rpm=2500
+        elif st.session_state.st_rotational_speed_rpm==2500 and st.session_state.st_torque_nm==60:
+            st.session_state.st_torque_nm=60
+            st.session_state.st_rotational_speed_rpm=1300
+        elif st.session_state.st_rotational_speed_rpm==1300 and st.session_state.st_torque_nm==60:
+            st.session_state.st_torque_nm=15
+            st.session_state.st_rotational_speed_rpm=2500
+        
+
     st.subheader("Input Machine Settings")
 
     # sliders
-    st_process_temperature_k  = st.slider(label='Process temperature [K]', min_value=305, max_value=313, value=309 , step=1 , key='ss_process_temperature_k')#, on_change=display_value)
-    st_air_temperature_k  = st.slider(label='Air temperature [K]', min_value=295, max_value=304, value=299, step=1 , key='st_air_temperature_k')#, disabled=True)
+    st_process_temperature_k  = st.slider(label='Process temperature [K]', min_value=305, max_value=313, value=310 , step=1 , key='ss_process_temperature_k')#, on_change=display_value)
+    st_air_temperature_k  = st.slider(label='Air temperature [K]', min_value=295, max_value=304, value=300, step=1 , key='st_air_temperature_k')#, disabled=True)
     st_type = st.select_slider(label='Product quality', options=["L","M","H"], value="M", key='st_type')
-    st_rotational_speed_rpm  = st.slider(label='Rotational speed [RPM]', min_value=1168, max_value=2886, value=2027 , step=1 , key='st_rotational_speed_rpm')
-    st_torque_nm  = st.slider(label='Torque [Nm]', min_value=3, max_value=76, value=40 , step=1 , key='st_torque_nm')
-    st_tool_wear_min  = st.slider(label='Tool usage [min]', min_value=0, max_value=253, value=126 , step=1 , key='st_tool_wear_min')
-    
+    st_rotational_speed_rpm  = st.slider(label='Rotational speed [RPM]', min_value=1168, max_value=2886, value=2500 , step=2 , key='st_rotational_speed_rpm')
+    st_torque_nm  = st.slider(label='Torque [Nm]', min_value=3, max_value=76, value=15 , step=1 , key='st_torque_nm')
+    st_tool_wear_min  = st.slider(label='Tool usage [min]', min_value=0, max_value=253, value=200 , step=1 , key='st_tool_wear_min')
+    st.button("change settings", on_click=change_vals)
     # define X_test based on input
     X_test_dict = {
         "type":[st_type],
@@ -129,7 +144,7 @@ with col2:
     st.subheader("Predicted Results")
     
     # predict based on input
-    y_pred = model.predict(X_test)
+    y_pred = model.predict(X_test)[0]
     pred_proba = model.predict_proba(X_test)[0]
     prob = int(pred_proba[y_pred]*100)
     if y_pred == 0:
@@ -141,4 +156,4 @@ with col2:
     st.markdown(f'<div style="font-weight: bold;text-align: center">{text}</div>',  unsafe_allow_html=True)
     
     # Shapley Additive Explanations (SHAP)
-    st.plotly_chart(f.chart_shap(model, 3, txt,shap_dict, X_test ))
+    st.plotly_chart(f.chart_shap(model, 9, shap_dict, X_test, y_pred ))

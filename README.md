@@ -105,11 +105,6 @@ The data pipeline ensures reproducible and efficient data handling for all machi
 
 ---
 
-##  Project Structure
-
-
----
-
 ##  Methods Used
 
 - Exploratory Data Analysis (EDA)  

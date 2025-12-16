@@ -29,7 +29,59 @@ A Digital Twin–based Predictive Maintenance System that can:
 - techical_documentation : Technical details of project
 - ..project_presentation/Final_PPT_DigitalTwin.pdf : Final presentation of the project
 
+## Set up your Environment
 
+### **`macOS`** type the following commands : 
+
+- For installing the virtual environment you can either use the [Makefile](Makefile) and run `make setup` or install it manually with the following commands:
+
+     ```BASH
+    make setup
+    ```
+    After that active your environment by following commands:
+    ```BASH
+    source .venv/bin/activate
+    ```
+Or ....
+- Install the virtual environment and the required packages by following commands:
+
+    ```BASH
+    pyenv local 3.11.3
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+    
+### **`WindowsOS`** type the following commands :
+
+- Install the virtual environment and the required packages by following commands.
+
+   For `PowerShell` CLI :
+
+    ```PowerShell
+    pyenv local 3.11.3
+    python -m venv .venv
+    .venv\Scripts\Activate.ps1
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+
+    For `Git-bash` CLI :
+  
+    ```BASH
+    pyenv local 3.11.3
+    python -m venv .venv
+    source .venv/Scripts/activate
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+
+    **`Note:`**
+    If you encounter an error when trying to run `pip install --upgrade pip`, try using the following command:
+    ```Bash
+    python.exe -m pip install --upgrade pip
+    ```
 
 ---
 ##  Hypotheses
@@ -150,7 +202,7 @@ Although accuracy was limited, this model provides:
 - insights into fundamental feature thresholds  
 - a sanity check before moving on to advanced models
 
-![alt text](image.png)
+![alt text](images/baseline_1.png)
 
 ---
 
@@ -277,23 +329,23 @@ The following visualizations summarize the performance and explainability of the
 **Random Forest Feature Importance (Barplot)**  
 - Shows which features most influence predictions.  
 - Example features: `torque_nm`, `rotational_speed_rpm`, `tool_wear_min`, `temperature_difference`.
-![alt text](image-1.png)
+![alt text](images/rf_feature_importance.png)
 
 **SHAP Summary Plot**  
 - Displays global feature influence on model predictions.  
 - Color indicates whether a high feature value increases or decreases failure risk.
-![alt text](image-2.png)
+![alt text](images/shap_summary.png)
 
 **Partial Dependence Plots (PDPs)**  
 - Visualize the effect of top features on predicted failure probability.  
 - Useful for “What-if” analysis: e.g., *how does increasing torque affect risk?*
 
-![alt text](image-4.png)
+![alt text](images/pdps.png)
 
 **SHAP Force Plot**  
 - Shows local explanations for individual machine observations.  
 - Can help engineers understand why a machine is predicted to fail.
-![alt text](image-3.png)
+![alt text](images/shap_value.png)
 
 ---
 
@@ -305,7 +357,7 @@ The following visualizations summarize the performance and explainability of the
   - *If `torque_nm > 150` and `rotational_speed_rpm > 5000` → higher failure risk.*  
 - Demonstrates transparency and explains basic decision logic.
 
-![alt text](image-5.png)
+![alt text](images/baseline_2.png)
 
 ---
 

@@ -17,6 +17,21 @@ A Digital Twin–based Predictive Maintenance System that can:
 - Reduce production risks and support smarter maintenance scheduling
 
 ---
+## Project Structure (Which files to use)
+
+### Run the Streamlit App
+- main_code folder: main coiding file *"`digital_twin_ml_modeling.ipynb`"* is stored 
+- Streamlit App to run: `st_app.py`
+- Helper functions: `st_function.py`
+- other_modeling_approachs : Folder contains different ML models
+- README file : Project information
+- requirements file : Python packages requirements
+- techical_documentation : Technical details of project
+- ..project_presentation/Final_PPT_DigitalTwin.pdf : Final presentation of the project
+
+
+
+---
 ##  Hypotheses
 
 The following hypotheses guided our project:

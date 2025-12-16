@@ -27,7 +27,7 @@ A Digital Twin–based Predictive Maintenance System that can:
 - README file : Project information
 - requirements file : Python packages requirements
 - techical_documentation : Technical details of project
-- ..project_presentation/Final_PPT_DigitalTwin.pdf : Final presentation of the project
+- project_presentation/Final_PPT_DigitalTwin.pdf : Final presentation of the project
 
 ## Set up your Environment
 

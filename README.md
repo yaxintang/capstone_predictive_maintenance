@@ -17,71 +17,77 @@ A Digital Twin–based Predictive Maintenance System that can:
 - Reduce production risks and support smarter maintenance scheduling
 
 ---
-## Project Structure (Which files to use)
-
+## Project Structure
 ### Run the Streamlit App
-- main_code folder: main coiding file *"`digital_twin_ml_modeling.ipynb`"* is stored 
-- Streamlit App to run: `st_app.py`
-- Helper functions: `st_function.py`
+
+- main_code folder: main coiding file "digital_twin_ml_modeling.ipynb" is stored
+- Streamlit App to run: st_app.py
+- Helper functions: st_function.py
 - other_modeling_approachs : Folder contains different ML models
 - README file : Project information
 - requirements file : Python packages requirements
 - techical_documentation : Technical details of project
 - project_presentation/Final_PPT_DigitalTwin.pdf : Final presentation of the project
 
-## Set up your Environment
+---
+## Setup
+Follow the steps below to run the project locally.
 
-### **`macOS`** type the following commands : 
+---
 
-- For installing the virtual environment you can either use the [Makefile](Makefile) and run `make setup` or install it manually with the following commands:
+### Clone the Repository
 
-     ```BASH
-    make setup
-    ```
-    After that active your environment by following commands:
-    ```BASH
-    source .venv/bin/activate
-    ```
-Or ....
-- Install the virtual environment and the required packages by following commands:
+```bash
+git clone git@github.com:yaxintang/capstone_predictive_maintenance.git
+cd your-repo
+```
+### Create and Activate a Virtual Environment
 
-    ```BASH
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
-    
-### **`WindowsOS`** type the following commands :
+#### For macOS / Linux users
 
-- Install the virtual environment and the required packages by following commands.
+```bash
+pyenv local 3.11.3
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-   For `PowerShell` CLI :
+#### For Windows (PowerShell)
+```powershell
+pyenv local 3.11.3
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-    ```PowerShell
-    pyenv local 3.11.3
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+#### For Windows (Git Bash)
+```powershell
+pyenv local 3.11.3
+python -m venv .venv
+source .venv/Scripts/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-    For `Git-bash` CLI :
-  
-    ```BASH
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/Scripts/activate
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+### Initialize the DuckDB Database (if needed)
+This will create or update team_data.duckdb inside the data/ directory.
 
-    **`Note:`**
-    If you encounter an error when trying to run `pip install --upgrade pip`, try using the following command:
-    ```Bash
-    python.exe -m pip install --upgrade pip
-    ```
+```
+python src/data_pipeline/build_duckdb.py
+```
+
+### Launch the Streamlit Dashboard
+
+The following is based on [Streamlit Main Concepts](https://docs.streamlit.io/get-started/fundamentals/main-concepts)
+.
+
+Streamlit is a Python library for creating interactive web apps for data science and machine learning.
+You build apps by adding Streamlit commands to a Python script and running it with 
+```bash
+streamlit run app.py
+```
 
 ---
 ##  Hypotheses
@@ -102,23 +108,37 @@ The dataset contains machine condition measurements, operational metadata, and f
 
 ### **Original Features**
 
-- `udi` – Unique record ID  
-- `product_id` – Machine/product identifier  
-- `type` – Machine type (H, L, M)  
-- `air_temperature_k` – Air temperature in Kelvin  
-- `process_temperature_k` – Process temperature in Kelvin  
-- `rotational_speed_rpm` – Spindle/shaft rotational speed  
-- `torque_nm` – Applied torque in Newton-meters  
-- `tool_wear_min` – Tool wear in minutes  
+- `udi` – unique identifier ranging from 1 to 10000  
+- `product_id` – consisting of a letter L, M, or H for low (50% of all products), medium (30%) and high (20%) as product quality variants  
+- `type` – product type L, M or H (cf. product ID)  
+- `air_temperature_k` – Air temperature in Kelvin, generated using a random walk process later normalized to a standard deviation of 2 K around 300 K  
+- `process_temperature_k` – Process temperature in Kelvin. Generated using a random walk process normalized to a standard deviation of 1 K, added to the air temperature plus  
+- `rotational_speed_rpm` – calculated from a power of 2860 W, overlaid with a normally distributed noise
+- `torque_nm` – torque values are normally distributed around 40 Nm with a SD = 10 Nm and no negative values  
+- `tool_wear_min` – Tool wear in minutes.The quality variants H/M/L add 5/3/2 minutes of tool wear to the used tool in the process  
 
 ### **Original Failure Signals (Binary Labels)**  
 (Used to engineer the final target)
 
-- `twf` – Tool Wear Failure  
-- `hdf` – Heat Dissipation Failure  
-- `pwf` – Power Failure  
-- `osf` – Overstrain Failure  
-- `rnf` – Random Failure  
+- `twf` – tool wear failure: the tool will be replaced of fail at a randomly selected tool wear time between 200 - 240 mins 
+- `hdf` – Heat Dissipation Failure. 
+Heat dissipation causes a process failure, if the 
+difference between air- and process temperature is 
+below 8.6 K and the tool’s rotational speed is below 
+1380 rpm. This is the case for 115 data points.   
+- `pwf` – Power Failure. The product of torque and rotational speed (in rad/s) 
+equals the power required for the process. If this 
+power is below 3500 W or above 9000 W, the 
+process fails, which is the case 95 times in our 
+dataset.   
+- `osf` – Overstrain Failure. If the product of tool wear and torque exceeds 
+11,000 minNm for the L product variant  
+(12,000 for M, 13,000 for H), the process fails due 
+to overstrain. This is true for 98 datapoints.  
+- `rnf` – Random Failure. each process has a chance of 0,1 % to fail regardless 
+of its process parameters. This is the case for 19 
+datapoints, more frequent than could be expected 
+for 10,000 datapoints in our dataset.   
 
 ### **Engineered Features**
 
@@ -129,7 +149,7 @@ The dataset contains machine condition measurements, operational metadata, and f
 
 ### **Target**
 
-- `machine_failure` – Binary target: 1 = failure, 0 = normal
+- `machine_failure` – Indicates, whether the machine has failed in this particular datapoint for any of the following failure modes
 
 ---
 ##  Data Pipeline
@@ -155,6 +175,21 @@ The data pipeline ensures reproducible and efficient data handling for all machi
 
 > This setup allows reproducibility, smooth experimentation, and easy updates for multiple models.
 
+### Data Pipeline Overview
+
+The following diagram illustrates the ETL pipeline used in this project:
+
+![Data Pipeline Diagram](image-9.png)
+
+**Flow:**  
+**Raw Data → Extract → Transform → Load → DuckDB**
+
+
+---
+
+##  Project Structure
+
+
 ---
 
 ##  Methods Used
@@ -166,9 +201,9 @@ The data pipeline ensures reproducible and efficient data handling for all machi
 - Scaling numeric features  
 - Train-test split  
 - Machine learning model: Random forest Classifier, XGBoostClassifier, Neural network and Decision Tree als Baseline  
+- Optimized using  **F1_score**
 - Model explainability: SHAP  
 - Partial Dependence Plots (PDP)  
-- Evaluation using Precision, Recall, **F1**
 
 ---
 
@@ -202,7 +237,7 @@ Although accuracy was limited, this model provides:
 - insights into fundamental feature thresholds  
 - a sanity check before moving on to advanced models
 
-![alt text](images/baseline_1.png)
+![alt text](image.png)
 
 ---
 
@@ -269,13 +304,10 @@ We want the model to:
 - maximize tool run-time by minimizing "false positives" (precision)
 We will therefore go with the **F1 score** as it provides a balance between recall and precision.
 
-
 Key metrics used:
 
 - **AUC-PR** – recommended for imbalanced classification   
 - **F1-Score**  
-- **SHAP Summary Plots**  
-- **PDP Plots** for feature influence
 
 -> **Precision (Positive Predictive Value)**
 
@@ -306,6 +338,17 @@ F1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \tex
 $$
 
 ---
+##  Model Explainability
+
+Understanding why the predictive maintenance model triggers a risk alert is critical for engineers, operators, and managers.
+To ensure transparency, interpretability, and trust, several explainability techniques were applied.
+
+- Global Feature Importance
+- SHAP Summary Plot
+- SHAP Dependence
+- Partial Dependence Plots
+- Interpretation of Baseline Decision Tree (human-level)
+---
 
 ## 📊 Results / Visualizations
 
@@ -313,58 +356,104 @@ The following visualizations summarize the performance and explainability of the
 
 ---
 
-### **1️⃣ Model Performance**
+### **Model Performance**
 
 **Model Comparison Table / Barplot**  
-- Compares AUC-PR, Precision, Recall, and F1-score for all four models:  
+- Compares F1-score for all four models:  
   - Decision Tree (baseline)  
   - Random Forest (final)  
   - XGBoost  
   - Neural Network  
 
----
+  ![alt text](image-6.png)
 
-### **2️⃣ Feature Importance & Explainability**
+The chart shows the **F1 score for the failure class** across different models.  
+Due to the **strong class imbalance**, F1 score is used instead of accuracy, as it better reflects performance on rare failure events.
 
-**Random Forest Feature Importance (Barplot)**  
-- Shows which features most influence predictions.  
-- Example features: `torque_nm`, `rotational_speed_rpm`, `tool_wear_min`, `temperature_difference`.
-![alt text](images/rf_feature_importance.png)
+| Model            | F1 Score (Failure Class) |
+|------------------|--------------------------|
+| Baseline Model   | 31%                      |
+| Decision Tree    | 65%                      |
+| MLP              | 81%                      |
+| XGBoost          | 82%                      |
+| Random Forest    | **87%**                  |
 
-**SHAP Summary Plot**  
-- Displays global feature influence on model predictions.  
-- Color indicates whether a high feature value increases or decreases failure risk.
-![alt text](images/shap_summary.png)
+**Observations:**
+- The baseline model performs poorly on failure detection.
+- Tree-based and neural models significantly improve performance.
+- **Random Forest** achieves the best results, indicating that ensemble methods are well suited for this predictive maintenance task.
 
-**Partial Dependence Plots (PDPs)**  
-- Visualize the effect of top features on predicted failure probability.  
-- Useful for “What-if” analysis: e.g., *how does increasing torque affect risk?*
+**Conclusion:**  
 
-![alt text](images/pdps.png)
-
-**SHAP Force Plot**  
-- Shows local explanations for individual machine observations.  
-- Can help engineers understand why a machine is predicted to fail.
-![alt text](images/shap_value.png)
+The Random Forest model was selected for further experiments and explainability analysis.
 
 ---
 
-### **3️⃣ Baseline Model Visualizations**
+### Interpretable Baseline: Simple Decision Tree
 
 **Decision Tree (Depth=2, 2 Features)**  
-- Human-interpretable rules for maintenance decisions.  
+
+Before training complex models, an intentionally simple Decision Tree (depth=2) was used as a baseline.
+
+Purpose:
+- Provide human-readable logic
+- Validate key failure relationships
+- Establish an interpretable reference model
+
+Because it's extremely shallow (only two levels), it can be visualized and explained to non-technical stakeholders.  
+
 - Example:  
   - *If `torque_nm > 150` and `rotational_speed_rpm > 5000` → higher failure risk.*  
 - Demonstrates transparency and explains basic decision logic.
 
-![alt text](images/baseline_2.png)
+![alt text](image-5.png)
+---
+
+### **Feature Importance & Explainability**
+
+We first analyze which features have the strongest influence on failure prediction across the entire dataset.
+This helps identify dominant drivers of machine health.
+
+**Random Forest Feature Importance (Barplot)**  
+- Shows which features most influence predictions.  
+- Example features: `torque_nm`, `rotational_speed_rpm`, `tool_wear_min`, `temperature_difference`.
+![alt text](image-10.png)
+
+### SHAP Explainability (Shapley Values)
+To achieve model-agnostic interpretability, we use SHAP, which assigns each feature a contribution to each individual prediction.
+
+**SHAP Summary Plot**  
+Shows the overall impact and direction of each feature across all predictions.
+
+Common insights include:
+- Higher torque_nm increases failure likelihood
+- Increasing tool_wear_min strongly contributes to failures
+- Rotational speed has non-linear effects captured by the model
+![alt text](image-7.png)
+
+**SHAP Force Plot**  
+Visualize how a feature affects the prediction while holding all other features constant.
+Useful to understand interactions between variables (e.g., torque × speed).
+
+![alt text](image-8.png)
+
+**Partial Dependence Plots (PDPs)** 
+- Visualize the average marginal effect of a feature on the predicted failure probability.  
+- Useful for “What-if” analysis: e.g., *how does increasing torque affect risk?*
+
+These plots help engineers answer:
+“What happens if I increase torque by 10%?”
+“How sensitive is the model to temperature changes?”
+
+![alt text](image-4.png)
+
 
 ---
 
 ### **Notes**
 
 - Only key plots are included in the README for clarity.  
-- Detailed plots (all SHAP force plots, PDPs for all features) are included in the **notebooks** or **technical documentation**.  
+- Detailed plots (EDA plots for all features) are included in the **notebooks** 
 - Visualizations support **interpretability, scenario simulation, and model validation** for industrial maintenance decisions.
 
 ---
@@ -372,9 +461,9 @@ The following visualizations summarize the performance and explainability of the
 
 **Streamlit dashboard implemented**:
 
-- Modify input features (torque, speed, temperature)  
-- Visualize predicted failure risk scores in real-time  
-- Helps engineers and managers make informed maintenance decisions
+- Modify input features (torque, speed, temperature,...)  
+- Visualize predicted failure risk scores  
+- Helps engineers and managers make informed decisions about running conditions before real use of machine
 
 ---
 
@@ -383,7 +472,7 @@ The following visualizations summarize the performance and explainability of the
 - Integrate real-time sensor timestamps for temporal modeling  
 - Explore LSTM / Temporal CNN models for sequential prediction  
 - Expand digital twin simulation with physics-based models
-
+- Having try with the real-world dataset
 ---
 
 
